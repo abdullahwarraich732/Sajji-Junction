@@ -1,0 +1,1329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sajji Junction | لاہور کا اصلی سواد</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Bungee&family=Montserrat:wght@300;400;600;700;900&family=Noto+Sans+Arabic:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <style>
+        :root {
+            --desi-orange: #E63946;
+            --desi-black: #121212;
+            --aylanto-border: #e0e0e0;
+            --aylanto-orange: #bf5b00;
+            --order-vibrant: #ff6600;
+            --soft-bg: #f7f7f7;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: #ffffff;
+            color: var(--desi-black);
+            overflow-x: hidden;
+            margin: 0;
+            scroll-behavior: smooth;
+        }
+
+        .font-genz { font-family: 'Bungee', cursive; }
+        .urdu { font-family: 'Noto Sans Arabic', serif; direction: rtl; }
+
+        #loader-wrapper {
+            position: fixed;
+            inset: 0;
+            background: #fff;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.4s ease, visibility 0.4s ease;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid var(--desi-orange);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .curtain {
+            position: fixed;
+            top: 0;
+            height: 100%;
+            width: 50%;
+            background: var(--desi-black);
+            z-index: 9990;
+            transition: 1s cubic-bezier(0.7, 0, 0.3, 1);
+        }
+
+        .curtain-left { left: 0; }
+        .curtain-right { right: 0; }
+
+        body.loaded .curtain-left { transform: translateX(-100%); }
+        body.loaded .curtain-right { transform: translateX(100%); }
+        body.loaded #loader-wrapper {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+
+        .page {
+            transition: 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .page.fade-out {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(100%); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .animate-slide-up {
+            animation: slideUp 0.5s cubic-bezier(0.23, 1, 0.32, 1) forwards;
+        }
+
+        @keyframes fadeInScale {
+            from { transform: scale(0.95); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .animate-pop {
+            animation: fadeInScale 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+
+        .custom-toggler {
+            width: 24px;
+            height: 18px;
+            position: relative;
+            cursor: pointer;
+            z-index: 4500;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .toggler-bar {
+            width: 100%;
+            height: 2px;
+            background: var(--desi-black);
+            transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .custom-toggler.active .bar-1 {
+            transform: translateY(8px) rotate(45deg);
+            background: var(--desi-orange);
+        }
+
+        .custom-toggler.active .bar-2 { opacity: 0; }
+
+        .custom-toggler.active .bar-3 {
+            transform: translateY(-8px) rotate(-45deg);
+            background: var(--desi-orange);
+        }
+
+        #fullNavOverlay {
+            position: fixed;
+            inset: 0;
+            background: white;
+            z-index: 4400;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: 0.4s;
+            padding: 20px;
+        }
+
+        #fullNavOverlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .menu-modal {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: white;
+            z-index: 3000;
+            overflow-y: auto;
+            display: none;
+        }
+
+        .menu-modal.active {
+            display: block;
+            animation: slideUp 0.6s forwards;
+        }
+
+        .aylanto-header {
+            border-bottom: 1px solid var(--aylanto-border);
+            padding: 10px 0;
+            background: white;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .aylanto-btn-icon {
+            padding: 10px 15px;
+            color: #555;
+            font-size: 1.1rem;
+            border-right: 1px solid var(--aylanto-border);
+            background: transparent;
+        }
+
+        .category-banner {
+            width: 100%;
+            height: 250px;
+            object-fit: cover;
+            border-radius: 16px;
+            margin-bottom: 30px;
+            filter: brightness(0.85);
+        }
+
+        .btn-order-primary {
+            background: var(--order-vibrant);
+            color: white;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            padding: 15px 45px;
+            border-radius: 0;
+            box-shadow: 0 10px 30px rgba(255, 102, 0, 0.3);
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            animation: pulse-glow 2s infinite;
+            border: none;
+        }
+
+        @keyframes pulse-glow {
+            0% { box-shadow: 0 0 0 0 rgba(255, 102, 0, 0.4); }
+            70% { box-shadow: 0 0 0 15px rgba(255, 102, 0, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(255, 102, 0, 0); }
+        }
+
+        .btn-order-primary:hover {
+            transform: scale(1.05) translateY(-3px);
+            background: #e65c00;
+        }
+
+        .cart-sidebar {
+            position: fixed;
+            bottom: -100%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+            max-width: 550px;
+            height: auto;
+            max-height: 85vh;
+            background: #f5f5f5;
+            z-index: 4600;
+            transition: bottom 0.6s cubic-bezier(0.19, 1, 0.22, 1);
+            overflow-y: auto;
+            box-shadow: 0 -10px 50px rgba(0,0,0,0.3);
+            border-radius: 30px 30px 0 0;
+            padding-bottom: 20px;
+        }
+
+        .cart-sidebar.active { bottom: 0; }
+
+        @media (min-width: 768px) {
+            .cart-sidebar {
+                width: 90%;
+                bottom: -110%;
+                border-radius: 30px;
+                margin-bottom: 30px;
+            }
+            .cart-sidebar.active { bottom: 30px; }
+        }
+
+        .cart-dropdown-form {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s ease-out, padding 0.3s ease;
+            padding: 0;
+        }
+
+        .cart-dropdown-form.open {
+            max-height: 700px;
+            padding-top: 15px;
+            border-top: 1px solid #eee;
+            margin-top: 15px;
+        }
+
+        .cart-card-item {
+            background: white;
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 14px;
+        }
+
+        .info-drawer {
+            position: fixed;
+            bottom: -100%;
+            left: 0;
+            width: 100%;
+            height: 85vh;
+            background: white;
+            z-index: 5000;
+            transition: 0.6s cubic-bezier(0.7, 0, 0.3, 1);
+            padding: 25px;
+            border-top: 8px solid var(--desi-orange);
+            overflow-y: auto;
+        }
+
+        .info-drawer.active { bottom: 0; }
+
+        .footer {
+            background: #111;
+            color: #fff;
+            padding: 60px 0 30px;
+        }
+
+        .footer-link {
+            color: #888;
+            text-decoration: none;
+            transition: 0.3s;
+            font-size: 13px;
+        }
+
+        .footer-link:hover { color: #fff; }
+
+        .form-mini-input {
+            width: 100%;
+            border: 1px solid #ddd;
+            padding: 10px 12px;
+            font-size: 14px;
+            margin-bottom: 8px;
+            outline: none;
+            -webkit-appearance: none;
+            border-radius: 10px;
+            background: #fff;
+        }
+
+        .form-mini-input:focus {
+            border-color: var(--desi-orange);
+            box-shadow: 0 0 0 3px rgba(230, 57, 70, 0.08);
+        }
+
+        .qty-btn {
+            background: #666;
+            color: white;
+            width: 35px;
+            height: 35px;
+            font-weight: bold;
+            border: none;
+        }
+
+        .item-detail-popup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 90%;
+            max-width: 480px;
+            background: white;
+            z-index: 5001;
+            padding: 20px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.15);
+            display: none;
+            max-height: 90vh;
+            overflow-y: auto;
+            border-radius: 20px;
+        }
+
+        .blog-card {
+            border: 1px solid #eee;
+            transition: 0.4s;
+            height: 100%;
+            overflow: hidden;
+            background: #fff;
+        }
+
+        .blog-card:hover {
+            border-color: var(--desi-orange);
+            transform: translateY(-5px);
+        }
+
+        .blog-img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+
+        .menu-item-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid #f1f1f1;
+            padding: 18px;
+            cursor: pointer;
+            transition: 0.25s ease;
+            border-radius: 16px;
+            background: #fff;
+        }
+
+        .menu-item-row:hover {
+            background: #fafafa;
+            border-color: #ddd;
+            transform: translateY(-1px);
+        }
+
+        .cart-item {
+            background: #fff;
+            border: 1px solid #ececec;
+            border-radius: 16px;
+            padding: 14px;
+            display: flex;
+            justify-content: space-between;
+            gap: 14px;
+        }
+
+        .cart-item-left { flex: 1; }
+
+        .cart-item-title {
+            font-weight: 800;
+            margin: 0 0 4px;
+            text-transform: uppercase;
+            font-size: 12px;
+            letter-spacing: 0.2px;
+        }
+
+        .cart-item-note {
+            font-size: 11px;
+            color: #777;
+            margin: 4px 0 0;
+            font-style: italic;
+        }
+
+        .cart-item-price {
+            font-weight: 800;
+            font-size: 12px;
+            white-space: nowrap;
+        }
+
+        .cart-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 10px;
+            flex-wrap: wrap;
+        }
+
+        .mini-qty-box {
+            display: inline-flex;
+            align-items: center;
+            border: 1px solid #ddd;
+            border-radius: 999px;
+            overflow: hidden;
+            background: #fafafa;
+        }
+
+        .mini-qty-box button {
+            width: 30px;
+            height: 30px;
+            border: none;
+            background: transparent;
+            font-weight: 800;
+        }
+
+        .mini-qty-box span {
+            min-width: 34px;
+            text-align: center;
+            font-size: 12px;
+            font-weight: 800;
+        }
+
+        .remove-link {
+            border: none;
+            background: transparent;
+            color: #dc2626;
+            font-size: 11px;
+            font-weight: 800;
+            text-transform: uppercase;
+        }
+
+        .empty-cart-box {
+            text-align: center;
+            padding: 40px 20px;
+            background: #fff;
+            border: 1px dashed #ddd;
+            border-radius: 18px;
+        }
+
+        .section-chip {
+            display: inline-block;
+            background: #f5f5f5;
+            border: 1px solid #ececec;
+            padding: 5px 10px;
+            font-size: 10px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-radius: 999px;
+        }
+
+        .overlay-hidden { display: none !important; }
+    </style>
+</head>
+<body>
+
+    <div id="loader-wrapper">
+        <div class="spinner mb-4"></div>
+        <h2 class="font-genz text-sm tracking-widest text-neutral-400">LOADING THE SCENE...</h2>
+    </div>
+    <div class="curtain curtain-left"></div>
+    <div class="curtain curtain-right"></div>
+
+    <nav class="navbar fixed-top bg-white border-b py-3 z-[4000]">
+        <div class="container flex justify-between items-center px-4 md:px-6">
+            <a class="navbar-brand font-genz m-0 text-xl md:text-2xl tracking-tighter" href="#" onclick="smartNavigate('home')">SAJJI JUNCTION</a>
+
+            <div class="flex items-center">
+                <button class="hidden lg:block bg-black text-white px-4 py-2 text-[10px] font-bold uppercase tracking-widest me-4" onclick="smartNavigate('location')">Order Now</button>
+                <button class="aylanto-btn-icon border-l" onclick="toggleInfo()"><i class="fa-solid fa-circle-info"></i></button>
+                <button class="aylanto-btn-icon relative" onclick="toggleCart()">
+                    <i class="fa-solid fa-cart-shopping"></i>
+                    <span id="cartCount" class="absolute top-1 right-1 md:right-2 bg-red-600 text-white text-[9px] min-w-[18px] h-[18px] px-1 rounded-full flex items-center justify-center">0</span>
+                </button>
+                <div class="ps-3 md:ps-5 pe-1">
+                    <div class="custom-toggler" id="navToggle" onclick="toggleNav()">
+                        <div class="toggler-bar bar-1"></div>
+                        <div class="toggler-bar bar-2"></div>
+                        <div class="toggler-bar bar-3"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div id="fullNavOverlay">
+        <a href="javascript:void(0)" class="text-3xl md:text-4xl font-genz mb-6 hover:text-red-500 transition" onclick="smartNavigate('home')">HOME</a>
+        <a href="javascript:void(0)" class="text-3xl md:text-4xl font-genz mb-6 text-red-500 transition" onclick="smartNavigate('location')">ORDER ONLINE</a>
+        <a href="javascript:void(0)" class="text-3xl md:text-4xl font-genz mb-6 hover:text-red-500 transition" onclick="smartNavigate('blogs')">THE JOURNAL</a>
+        <a href="#story" class="text-3xl md:text-4xl font-genz mb-6 hover:text-red-500 transition" onclick="smartNavigate('home', '#story')">THE HUSTLE</a>
+        <a href="#hype" class="text-3xl md:text-4xl font-genz mb-6 hover:text-red-500 transition" onclick="smartNavigate('home', '#hype')">REVIEWS</a>
+        <a href="javascript:void(0)" class="text-3xl md:text-4xl font-genz hover:text-red-500 transition" onclick="smartNavigate('policy')">POLICIES</a>
+        <button class="mt-12 text-neutral-400 font-bold uppercase tracking-widest text-[10px]" onclick="toggleNav()">[ Close Menu ]</button>
+    </div>
+
+    <main id="app">
+        <section id="home-page" class="page container pt-24 md:pt-32 pb-10">
+            <div class="row align-items-center mb-16 md:mb-32">
+                <div class="col-lg-6 mb-12 lg:mb-0">
+                    <span class="urdu text-red-600 text-xl md:text-2xl block mb-2">لاہور کا اصلی سواد</span>
+                    <h1 class="text-4xl md:text-5xl lg:text-7xl font-genz leading-tight md:leading-none mb-6 md:mb-8">WOODFIRE.<br>ROCK SALT.<br>SAJJI.</h1>
+                    <p class="text-neutral-500 text-base md:text-lg mb-8 md:mb-10 max-w-sm">No gas. No electric. Just pure Balochi fire. Perfected in Lahore since 2018.</p>
+                    <button class="btn-order-primary" onclick="showPage('location')">Order Online Now</button>
+                </div>
+                <div class="col-lg-6">
+                    <img src="https://images.unsplash.com/photo-1598515214211-89d3c73ae83b?auto=format&fit=crop&q=80&w=1200" class="w-full h-[40vh] md:h-[60vh] object-cover grayscale-[10%]" alt="Sajji Hero">
+                </div>
+            </div>
+
+            <div class="py-16 md:py-24 border-y mb-16 md:mb-32">
+                <div class="text-center mb-12 md:mb-20">
+                    <h2 class="font-genz text-3xl md:text-4xl">THE PROCESS | طریقہ</h2>
+                </div>
+                <div class="row">
+                    <div class="col-md-4 process-step px-6 md:px-10">
+                        <span class="text-3xl md:text-4xl font-genz text-red-600">01</span>
+                        <h4 class="font-bold my-3 md:my-4 uppercase text-sm md:text-base">Raw Fire</h4>
+                        <p class="text-xs md:text-sm text-neutral-400">We only use local babool wood to ensure that signature smoky aroma.</p>
+                    </div>
+                    <div class="col-md-4 process-step px-6 md:px-10">
+                        <span class="text-3xl md:text-4xl font-genz text-red-600">02</span>
+                        <h4 class="font-bold my-3 md:my-4 uppercase text-sm md:text-base">Salt Cured</h4>
+                        <p class="text-xs md:text-sm text-neutral-400">Minimal spices. Just rock salt and the natural juices of the meat.</p>
+                    </div>
+                    <div class="col-md-4 process-step px-6 md:px-10">
+                        <span class="text-3xl md:text-4xl font-genz text-red-600">03</span>
+                        <h4 class="font-bold my-3 md:my-4 uppercase text-sm md:text-base">Slow Roast</h4>
+                        <p class="text-xs md:text-sm text-neutral-400">4 hours in the pit. Patience is the secret ingredient. No cap.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div id="story" class="row align-items-center mb-16 md:mb-32 bg-black text-white p-8 md:p-12 lg:p-24">
+                <div class="col-lg-5 mb-8 lg:mb-0">
+                    <img src="https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&q=80&w=800" class="w-full grayscale brightness-75" alt="Story">
+                </div>
+                <div class="col-lg-7 lg:ps-20">
+                    <span class="urdu text-red-500 text-lg md:text-xl">ہماری کہانی</span>
+                    <h2 class="text-3xl md:text-5xl font-genz mt-3 md:mt-4 mb-6 md:mb-8">REAL VIBES<br>SINCE 2018.</h2>
+                    <p class="text-base md:text-xl text-neutral-400 leading-relaxed">Inspired by the Balochi desert, perfected in Lahore. We didn't want to make fast food; we wanted to make slow food, fast. Today, Sajji Junction is the heartbeat of Lahore's authentic food scene.</p>
+                </div>
+            </div>
+
+            <div id="hype" class="py-16 md:py-24 mb-16 md:mb-32">
+                <div class="text-center mb-12 md:mb-20">
+                    <h2 class="font-genz text-3xl md:text-4xl">THE HYPE | تعریفیں</h2>
+                </div>
+                <div class="row g-4">
+                    <div class="col-md-4">
+                        <div class="border p-6 md:p-8 h-full bg-neutral-50 animate-pop">
+                            <i class="fa-solid fa-quote-left text-red-600 text-2xl md:text-3xl mb-4"></i>
+                            <p class="italic mb-6 text-sm md:text-base">"Hands down the best Sajji in DHA. The texture is actually unreal. No Cap!"</p>
+                            <span class="font-bold uppercase text-[9px] tracking-widest text-neutral-500">— ALI ZAFAR, DHA VIBER</span>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="border p-6 md:p-8 h-full bg-neutral-50 animate-pop" style="animation-delay: 0.1s">
+                            <i class="fa-solid fa-quote-left text-red-600 text-2xl md:text-3xl mb-4"></i>
+                            <p class="italic mb-6 text-sm md:text-base">"Finally a place that doesn't ruin the meat with 100 spices. Minimalist perfection."</p>
+                            <span class="font-bold uppercase text-[9px] tracking-widest text-neutral-500">— SARA K., FOODIE</span>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="border p-6 md:p-8 h-full bg-neutral-50 animate-pop" style="animation-delay: 0.2s">
+                            <i class="fa-solid fa-quote-left text-red-600 text-2xl md:text-3xl mb-4"></i>
+                            <p class="italic mb-6 text-sm md:text-base">"The Garlic Mayo Scene is on another level. Order the Platter for the gang."</p>
+                            <span class="font-bold uppercase text-[9px] tracking-widest text-neutral-500">— HAMZA 007</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="blogs-page" class="page hidden container py-24 md:py-32">
+            <div class="text-center mb-16">
+                <h2 class="font-genz text-4xl md:text-5xl">THE JOURNAL</h2>
+                <p class="urdu text-red-600 text-xl md:text-2xl mt-2">ہمارا بلاگ</p>
+            </div>
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <div class="blog-card">
+                        <img src="https://images.unsplash.com/photo-1599481238640-4c1288750d7a?auto=format&fit=crop&q=80&w=600" class="blog-img" alt="Blog 1">
+                        <div class="p-6">
+                            <span class="text-[10px] uppercase font-bold text-red-600">Culture</span>
+                            <h4 class="font-bold my-2">The Art of Woodfire Sajji</h4>
+                            <p class="text-xs text-neutral-400">Discover why babool wood is the secret to Lahore's smokiest roast.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="blog-card">
+                        <img src="https://images.unsplash.com/photo-1626082927389-6cd097cdc6ec?auto=format&fit=crop&q=80&w=600" class="blog-img" alt="Blog 2">
+                        <div class="p-6">
+                            <span class="text-[10px] uppercase font-bold text-red-600">Lifestyle</span>
+                            <h4 class="font-bold my-2">GenZ Food Trends in Lahore</h4>
+                            <p class="text-xs text-neutral-400">How minimalist desi food is taking over the city's food scene.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="blog-card">
+                        <img src="https://images.unsplash.com/photo-1555939594-58d7cb561ad1?auto=format&fit=crop&q=80&w=600" class="blog-img" alt="Blog 3">
+                        <div class="p-6">
+                            <span class="text-[10px] uppercase font-bold text-red-600">Kitchen</span>
+                            <h4 class="font-bold my-2">Rock Salt: Nature's Flavor</h4>
+                            <p class="text-xs text-neutral-400">Why we choose Himalayan rock salt over processed alternatives.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="policy-page" class="page hidden container py-24 md:py-32">
+            <div class="max-w-3xl mx-auto">
+                <h2 class="font-genz text-4xl mb-8">THE FINE PRINT</h2>
+
+                <div class="mb-10">
+                    <h5 class="font-bold uppercase tracking-widest text-red-600 mb-4">Refund & Return Policy</h5>
+                    <p class="text-sm text-neutral-500 leading-loose">At Sajji Junction, quality is our priority. Since we serve perishable food items, we do not accept returns once the food has been accepted by the customer. However, if there is a quality issue or an incorrect order, please contact us within 30 minutes of delivery for a replacement or a credit note for your next order.</p>
+                </div>
+
+                <div class="mb-10">
+                    <h5 class="font-bold uppercase tracking-widest text-red-600 mb-4">Delivery Policy</h5>
+                    <p class="text-sm text-neutral-500 leading-loose">We deliver within our specified zones in Lahore and Karachi. Estimated times are usually 45-60 minutes depending on woodfire roasting time. Large platters may require extra prep time. Minimum order values apply for free delivery.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="location-page" class="page hidden container py-24 md:py-32 text-center">
+            <h2 class="font-genz text-4xl md:text-5xl mb-2">SELECT CITY</h2>
+            <p class="urdu text-red-600 text-xl md:text-2xl mb-12 md:mb-16">اپنا شہر منتخب کریں</p>
+            <div class="flex flex-wrap justify-center gap-6 md:gap-12">
+                <div class="border-2 border-neutral-100 p-8 md:p-12 w-40 md:w-64 cursor-pointer hover:border-black transition-all duration-300 group animate-pop" onclick="openMenu('Lahore')">
+                    <h4 class="font-bold text-lg md:text-xl tracking-widest group-hover:text-red-600">LAHORE</h4>
+                    <span class="urdu text-xs md:text-sm opacity-40">لاہور</span>
+                </div>
+                <div class="border-2 border-neutral-100 p-8 md:p-12 w-40 md:w-64 cursor-pointer hover:border-black transition-all duration-300 group animate-pop" style="animation-delay: 0.1s" onclick="openMenu('Karachi')">
+                    <h4 class="font-bold text-lg md:text-xl tracking-widest group-hover:text-red-600">KARACHI</h4>
+                    <span class="urdu text-xs md:text-sm opacity-40">کراچی</span>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="container px-4">
+            <div class="row g-5">
+                <div class="col-lg-4 text-center lg:text-left">
+                    <h3 class="font-genz text-2xl mb-2 md:mb-4 tracking-tighter">SAJJI JUNCTION</h3>
+                    <p class="urdu text-red-500 text-lg md:text-xl mb-4">لاہور کا اصلی سواد</p>
+                    <div class="flex justify-center lg:justify-start gap-6 mt-6">
+                        <a href="#" class="text-white hover:text-red-500 transition"><i class="fab fa-instagram fs-4"></i></a>
+                        <a href="#" class="text-white hover:text-red-500 transition"><i class="fab fa-facebook fs-4"></i></a>
+                        <a href="#" class="text-white hover:text-red-500 transition"><i class="fab fa-tiktok fs-4"></i></a>
+                    </div>
+                </div>
+                <div class="col-lg-2 col-6">
+                    <h6 class="font-bold uppercase text-[9px] tracking-widest mb-4 text-neutral-500">Company</h6>
+                    <ul class="list-unstyled space-y-2">
+                        <li><a href="javascript:void(0)" onclick="smartNavigate('home', '#story')" class="footer-link">Our Story</a></li>
+                        <li><a href="javascript:void(0)" onclick="smartNavigate('blogs')" class="footer-link">The Journal</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-2 col-6">
+                    <h6 class="font-bold uppercase text-[9px] tracking-widest mb-4 text-neutral-500">Legal</h6>
+                    <ul class="list-unstyled space-y-2">
+                        <li><a href="javascript:void(0)" onclick="smartNavigate('policy')" class="footer-link">Returns Policy</a></li>
+                        <li><a href="javascript:void(0)" onclick="smartNavigate('policy')" class="footer-link">Terms of Service</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-4 text-center lg:text-right">
+                    <h6 class="font-bold uppercase text-[9px] tracking-widest mb-4 text-neutral-500">Newsletter</h6>
+                    <div class="flex border border-neutral-800 p-1 mx-auto lg:mx-0 max-w-[300px] lg:max-w-none">
+                        <input type="email" placeholder="Email" class="bg-transparent border-0 text-white text-[11px] px-3 focus:outline-none flex-grow">
+                        <button class="bg-white text-black text-[9px] font-bold px-4 py-2 uppercase tracking-widest">Join</button>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-16 md:mt-20 pt-10 border-t border-neutral-900 text-center text-[8px] uppercase tracking-[3px] md:tracking-[4px] text-neutral-600">
+                © 2024 SAJJI JUNCTION. NO CAP. ALL REAL.
+            </div>
+        </div>
+    </footer>
+
+    <div id="menuModal" class="menu-modal">
+        <div class="aylanto-header">
+            <div class="container flex justify-between items-center px-4">
+                <h2 id="menuTitle" class="font-bold text-base md:text-xl uppercase tracking-tighter text-neutral-600 m-0">CAFE SAJJI LAHORE</h2>
+                <div class="flex items-center">
+                    <button class="aylanto-btn-icon border-l hidden md:block"><i class="fa-solid fa-list"></i></button>
+                    <button class="aylanto-btn-icon" onclick="toggleCart()"><i class="fa-solid fa-cart-shopping"></i></button>
+                    <button class="bg-black text-white px-4 md:px-8 py-2 text-[9px] font-bold uppercase tracking-widest border-0" onclick="closeMenu()">Close</button>
+                </div>
+            </div>
+        </div>
+        <div class="container max-w-5xl py-8 md:py-12" id="menuContent"></div>
+    </div>
+
+    <div id="itemDetailOverlay" class="fixed inset-0 bg-black/40 z-[5000] hidden" onclick="closeItemDetail()"></div>
+    <div id="itemDetail" class="item-detail-popup">
+        <div class="flex justify-between items-start mb-4">
+            <div>
+                <span class="section-chip mb-3">Customize Order</span>
+                <h3 id="popTitle" class="font-bold text-lg md:text-xl m-0 uppercase">Item Name</h3>
+                <p id="popDesc" class="text-[10px] md:text-xs text-neutral-400 mt-1 italic">Description goes here</p>
+            </div>
+            <button onclick="closeItemDetail()" class="text-neutral-300 text-2xl bg-transparent border-0">&times;</button>
+        </div>
+
+        <div class="mb-6">
+            <label class="block text-[9px] font-bold text-neutral-600 uppercase mb-2">Special Instructions</label>
+            <textarea id="popNote" class="w-full border p-3 text-xs italic focus:outline-none rounded-xl" rows="3" placeholder="Example: No pepper / sugar / salt please."></textarea>
+        </div>
+
+        <div class="flex items-center justify-between mb-8 md:mb-10">
+            <span class="text-[9px] font-bold text-neutral-600 uppercase">Quantity</span>
+            <div class="flex items-center gap-2 md:gap-3">
+                <input type="number" id="popQty" value="1" class="w-12 border p-2 text-center text-xs md:text-sm font-bold rounded-xl" min="1">
+                <div class="flex">
+                    <button onclick="changePopQty(-1)" class="qty-btn rounded-s-lg">-</button>
+                    <button onclick="changePopQty(1)" class="qty-btn rounded-e-lg">+</button>
+                </div>
+            </div>
+        </div>
+
+        <button class="w-full bg-[#bf5b00] text-white py-4 font-bold rounded-2xl shadow-lg flex justify-between px-6 items-center border-0" onclick="confirmAdd()">
+            <span id="popPrice" class="text-base md:text-lg">Rs 0.00</span>
+            <span class="text-[9px] md:text-xs uppercase tracking-widest">Add to cart</span>
+        </button>
+    </div>
+
+    <div id="cartOverlay" class="fixed inset-0 bg-black/50 z-[4550] hidden" onclick="toggleCart()"></div>
+    <div id="cartSidebar" class="cart-sidebar">
+        <div class="p-4 md:p-6 bg-white border-b flex justify-between items-center sticky top-0 z-10 rounded-t-[30px]">
+            <h3 class="font-bold text-lg md:text-xl m-0 tracking-tighter">ORDER DETAILS</h3>
+            <button onclick="toggleCart()" class="text-2xl bg-transparent border-0">&times;</button>
+        </div>
+
+        <div class="p-4 md:p-6">
+            <div class="cart-card-item">
+                <div class="flex justify-between items-center">
+                    <div class="flex items-center gap-3">
+                        <i class="fa-solid fa-user text-neutral-300"></i>
+                        <span class="text-[9px] font-bold text-neutral-600 uppercase tracking-widest">Contact</span>
+                    </div>
+                    <button class="border px-3 md:px-4 py-2 text-[9px] font-bold uppercase flex items-center gap-2 rounded-lg bg-white" onclick="toggleCartSection('contact')">
+                        <i class="fa-solid fa-pencil text-[8px]"></i>
+                        <span id="contact-btn-text">Add details</span>
+                    </button>
+                </div>
+
+                <div id="cart-form-contact" class="cart-dropdown-form">
+                    <div class="row g-2">
+                        <div class="col-6"><input type="text" placeholder="First Name" class="form-mini-input" id="c-fname"></div>
+                        <div class="col-6"><input type="text" placeholder="Last Name" class="form-mini-input" id="c-lname"></div>
+                        <div class="col-12"><input type="tel" placeholder="Mobile Number" class="form-mini-input" id="c-phone"></div>
+                        <div class="col-12"><button class="w-full bg-black text-white text-[9px] font-bold py-3 uppercase tracking-widest rounded-lg mt-2 border-0" onclick="saveCartSection('contact')">Save Details</button></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="cart-card-item">
+                <div class="flex justify-between items-center">
+                    <div class="flex items-center gap-3">
+                        <i class="fa-solid fa-truck-fast text-neutral-300"></i>
+                        <span class="text-[9px] font-bold text-neutral-600 uppercase tracking-widest">Order Method</span>
+                    </div>
+                    <button class="border px-3 md:px-4 py-2 text-[9px] font-bold uppercase flex items-center gap-2 rounded-lg bg-white" onclick="toggleCartSection('method')">
+                        <i class="fa-solid fa-pencil text-[8px]"></i>
+                        <span id="method-btn-text">Select Method</span>
+                    </button>
+                </div>
+
+                <div id="cart-form-method" class="cart-dropdown-form">
+                    <div class="space-y-2 mb-3">
+                        <label class="text-[10px] font-bold flex items-center p-3 border rounded-xl hover:bg-neutral-50 cursor-pointer">
+                            <input type="radio" name="orderMethod" value="Delivery" checked class="mr-2" onchange="toggleAddressInfo(true)"> Delivery
+                        </label>
+                        <label class="text-[10px] font-bold flex items-center p-3 border rounded-xl hover:bg-neutral-50 cursor-pointer">
+                            <input type="radio" name="orderMethod" value="Pickup" class="mr-2" onchange="toggleAddressInfo(false)"> Self-Pickup
+                        </label>
+                    </div>
+
+                    <div id="address-info-box" class="block">
+                        <input type="text" placeholder="House / Flat / Street" class="form-mini-input" id="m-address">
+                    </div>
+
+                    <button class="w-full bg-black text-white text-[9px] font-bold py-3 uppercase tracking-widest rounded-lg mt-2 border-0" onclick="saveCartSection('method')">Confirm Method</button>
+                </div>
+            </div>
+
+            <div class="bg-white border rounded-xl mb-6 overflow-hidden shadow-sm">
+                <div id="cartList" class="p-3 md:p-4 space-y-3 md:space-y-4"></div>
+                <div class="p-3 md:p-4 border-t bg-neutral-50">
+                    <div class="flex justify-between font-bold text-lg md:text-xl tracking-tighter">
+                        <span>Total</span>
+                        <span id="cartTotal">Rs 0.00</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="cart-card-item">
+                <div class="flex justify-between items-center">
+                    <span class="text-[9px] font-bold text-neutral-600 uppercase tracking-widest"><i class="fa-solid fa-credit-card text-neutral-300 mr-2"></i> Payment</span>
+                    <button class="text-[9px] font-bold border px-3 py-1 uppercase rounded-lg bg-white" onclick="toggleCartSection('payment')"><span id="payment-btn-text">Select payment</span></button>
+                </div>
+
+                <div id="cart-form-payment" class="cart-dropdown-form">
+                    <div class="space-y-2 mb-3">
+                        <label class="text-[10px] font-bold flex items-center p-3 border rounded-xl hover:bg-neutral-50 cursor-pointer">
+                            <input type="radio" name="payType" value="Cash" checked class="mr-2" onchange="toggleBankInfo(false)"> Cash on Delivery (COD)
+                        </label>
+                        <label class="text-[10px] font-bold flex items-center p-3 border rounded-xl hover:bg-neutral-50 cursor-pointer">
+                            <input type="radio" name="payType" value="Online" class="mr-2" onchange="toggleBankInfo(true)"> Online Bank Transfer
+                        </label>
+                    </div>
+
+                    <div id="bank-info-box" class="hidden bg-neutral-100 p-4 mb-3 text-[10px] border-l-4 border-red-600 rounded-lg">
+                        <p><strong>Bank:</strong> Habib Bank Limited (HBL)</p>
+                        <p><strong>IBAN:</strong> PK00 HABB 0123 4567 8901 23</p>
+                    </div>
+
+                    <button class="w-full bg-black text-white text-[9px] font-bold py-3 uppercase tracking-widest rounded-lg mt-2 border-0" onclick="saveCartSection('payment')">Confirm Payment</button>
+                </div>
+            </div>
+
+            <button class="w-full bg-[#ff6600] text-white py-5 font-bold text-lg md:text-xl flex justify-between px-6 md:px-8 items-center group shadow-xl transition hover:brightness-110 active:scale-95 rounded-2xl border-0" onclick="placeOrder(event)">
+                <div class="flex flex-col items-start leading-none">
+                    <span class="text-[8px] uppercase opacity-70 tracking-widest">Grand Total</span>
+                    <span id="cartBtnTotal" class="text-xl md:text-2xl tracking-tighter">Rs 0.00</span>
+                </div>
+                <span class="uppercase text-xs md:text-sm tracking-widest">Place Order Now</span>
+            </button>
+        </div>
+    </div>
+
+    <div id="infoOverlay" class="fixed inset-0 bg-black/40 z-[4900] hidden" onclick="toggleInfo()"></div>
+    <div id="infoDrawer" class="info-drawer">
+        <div class="flex justify-between items-center mb-8">
+            <h2 class="font-genz text-2xl md:text-3xl m-0">SHOP INFO</h2>
+            <button onclick="toggleInfo()" class="text-3xl bg-transparent border-0">&times;</button>
+        </div>
+        <div class="row g-4 md:g-5">
+            <div class="col-md-7">
+                <div class="border overflow-hidden h-64 md:h-80 mb-6 rounded-xl">
+                    <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3401.419084201314!2d74.34321747625141!3d31.5126132742183!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3919045a19142345%3A0x8e57973c1d9f8b00!2sMM%20Alam%20Rd%2C%20Gulberg%20III%2C%20Lahore%2C%20Punjab!5e0!3m2!1sen!2spk!4v1709400000000!5m2!1sen!2spk" width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy"></iframe>
+                </div>
+            </div>
+            <div class="col-md-5">
+                <h4 class="font-bold uppercase text-[10px] tracking-widest text-neutral-400 mb-2">Opening Hours</h4>
+                <p class="text-xs font-bold mb-1">Mon - Fri: 12:30 PM - 12:00 AM</p>
+                <p class="text-xs font-bold">Sat - Sun: 12:25 PM - 01:00 AM</p>
+                <div class="mt-8 border-t pt-4">
+                    <h4 class="font-bold uppercase text-[10px] tracking-widest text-neutral-400 mb-2">Contact</h4>
+                    <a href="tel:+924235751886" class="text-red-600 font-bold block text-sm">+92 42 35751886</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const menuData = {
+            "SOUPS | سوپ": {
+                banner: "https://images.unsplash.com/photo-1547592166-23ac45744acd?auto=format&fit=crop&q=80&w=1200",
+                items: [
+                    { id: 1, name: "Cream of Mushroom and Chicken Soup", desc: "Diced chicken and marjoram", price: 1105 },
+                    { id: 2, name: "Roasted Tomato Soup", desc: "Puree of plump tomatoes and basil", price: 895 },
+                    { id: 3, name: "Clear Hot and Sour Chicken Soup", desc: "Artichoke, jalapeño and coriander", price: 895 }
+                ]
+            },
+            "SAJJI SIGNATURES | سجی": {
+                banner: "https://images.unsplash.com/photo-1599481238640-4c1288750d7a?auto=format&fit=crop&q=80&w=1200",
+                items: [
+                    { id: 4, name: "Full Chicken Sajji (Slow Roast)", desc: "Caramelised onion, secret spices, woodfire cooked", price: 2700 },
+                    { id: 5, name: "Quarter Lamb Sajji", desc: "Prime cuts of local lamb, salt cured", price: 1850 },
+                    { id: 6, name: "The Megaplatter (Feeds 4)", desc: "1 Full Sajji, 2 Sides, 4 Dips & Special Rice", price: 4200 }
+                ]
+            },
+            "DESSERTS | میٹھا": {
+                banner: "https://images.unsplash.com/photo-1563805042-7684c019e1cb?auto=format&fit=crop&q=80&w=1200",
+                items: [
+                    { id: 7, name: "Traditional Kheer", desc: "Slow cooked rice pudding with saffron", price: 350 },
+                    { id: 8, name: "Gulab Jamun (2 Pcs)", desc: "Served hot in sugar syrup", price: 250 }
+                ]
+            }
+        };
+
+        let cart = [];
+        let currentCity = "";
+        let pending = null;
+        let cartRowSeed = 1;
+
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                document.body.classList.add('loaded');
+            }, 200);
+            updateCartUI();
+        });
+
+        function updateBodyScrollLock() {
+            const navOpen = document.getElementById('fullNavOverlay').classList.contains('active');
+            const menuOpen = document.getElementById('menuModal').classList.contains('active');
+            const cartOpen = document.getElementById('cartSidebar').classList.contains('active');
+            const infoOpen = document.getElementById('infoDrawer').classList.contains('active');
+            const itemOpen = !document.getElementById('itemDetailOverlay').classList.contains('hidden');
+
+            document.body.style.overflow = (navOpen || menuOpen || cartOpen || infoOpen || itemOpen) ? 'hidden' : 'auto';
+        }
+
+        function toggleNav() {
+            document.getElementById('navToggle').classList.toggle('active');
+            document.getElementById('fullNavOverlay').classList.toggle('active');
+            updateBodyScrollLock();
+        }
+
+        function smartNavigate(pageId, sectionId = null) {
+            closeMenu();
+
+            if (document.getElementById('fullNavOverlay').classList.contains('active')) {
+                toggleNav();
+            }
+
+            showPage(pageId);
+
+            if (sectionId) {
+                setTimeout(() => {
+                    const el = document.querySelector(sectionId);
+                    if (el) el.scrollIntoView({ behavior: "smooth" });
+                }, 500);
+            }
+        }
+
+        function showPage(pageId) {
+            const pages = document.querySelectorAll('.page');
+            const target = document.getElementById(`${pageId}-page`);
+
+            pages.forEach(p => p.classList.add('fade-out'));
+
+            setTimeout(() => {
+                pages.forEach(p => p.classList.add('hidden'));
+                if (target) {
+                    target.classList.remove('hidden');
+                    void target.offsetWidth;
+                    target.classList.remove('fade-out');
+                }
+            }, 400);
+        }
+
+        function openMenu(city) {
+            currentCity = city;
+            document.getElementById('menuTitle').innerText = `CAFE SAJJI ${city.toUpperCase()}`;
+            renderMenu();
+
+            const modal = document.getElementById('menuModal');
+            modal.style.display = 'block';
+            setTimeout(() => modal.classList.add('active'), 10);
+
+            updateBodyScrollLock();
+        }
+
+        function closeMenu() {
+            const modal = document.getElementById('menuModal');
+            if (!modal.classList.contains('active')) return;
+
+            modal.classList.remove('active');
+
+            setTimeout(() => {
+                modal.style.display = 'none';
+                updateBodyScrollLock();
+            }, 500);
+        }
+
+        function renderMenu() {
+            const container = document.getElementById('menuContent');
+            container.innerHTML = '';
+
+            for (const [cat, data] of Object.entries(menuData)) {
+                let html = `
+                    <div class="mb-16">
+                        <div class="relative mb-8 group overflow-hidden rounded-2xl">
+                            <img src="${data.banner}" class="category-banner group-hover:scale-110 transition duration-700" alt="${cat}">
+                            <div class="absolute inset-0 bg-black/30 flex items-center justify-center">
+                                <h3 class="font-genz text-white text-3xl md:text-5xl uppercase tracking-tighter">${cat.split('|')[0]}</h3>
+                            </div>
+                        </div>
+                        <div class="space-y-3 max-w-4xl mx-auto">
+                `;
+
+                data.items.forEach(item => {
+                    html += `
+                        <div class="menu-item-row" onclick="openItemDetail(${item.id})">
+                            <div class="pe-6">
+                                <h5 class="font-bold text-sm md:text-lg m-0 uppercase tracking-tighter">${item.name}</h5>
+                                <p class="text-[10px] md:text-xs text-neutral-400 mt-1 italic">${item.desc}</p>
+                            </div>
+                            <span class="font-bold text-sm md:text-xl text-neutral-800 whitespace-nowrap">Rs ${item.price.toLocaleString()}</span>
+                        </div>
+                    `;
+                });
+
+                html += `</div></div>`;
+                container.innerHTML += html;
+            }
+        }
+
+        function getItemById(id) {
+            for (let cat in menuData) {
+                const found = menuData[cat].items.find(i => i.id === id);
+                if (found) return found;
+            }
+            return null;
+        }
+
+        function openItemDetail(id) {
+            const item = getItemById(id);
+            if (!item) return;
+
+            pending = item;
+
+            document.getElementById('popTitle').innerText = item.name;
+            document.getElementById('popDesc').innerText = item.desc;
+            document.getElementById('popQty').value = 1;
+            document.getElementById('popNote').value = '';
+            document.getElementById('popPrice').innerText = `Rs ${item.price.toLocaleString()}.00`;
+
+            document.getElementById('itemDetail').style.display = 'block';
+            document.getElementById('itemDetailOverlay').classList.remove('hidden');
+
+            updateBodyScrollLock();
+        }
+
+        function closeItemDetail() {
+            document.getElementById('itemDetail').style.display = 'none';
+            document.getElementById('itemDetailOverlay').classList.add('hidden');
+            updateBodyScrollLock();
+        }
+
+        function changePopQty(delta) {
+            const input = document.getElementById('popQty');
+            let val = parseInt(input.value || 1, 10) + delta;
+            if (val < 1) val = 1;
+            input.value = val;
+            document.getElementById('popPrice').innerText = `Rs ${(pending.price * val).toLocaleString()}.00`;
+        }
+
+        function normalizeNote(note) {
+            return (note || '').trim();
+        }
+
+        function confirmAdd() {
+            if (!pending) return;
+
+            const qty = Math.max(1, parseInt(document.getElementById('popQty').value || 1, 10));
+            const note = normalizeNote(document.getElementById('popNote').value);
+
+            const existing = cart.find(c => c.id === pending.id && normalizeNote(c.note) === note);
+
+            if (existing) {
+                existing.qty += qty;
+            } else {
+                cart.push({
+                    cartRowId: cartRowSeed++,
+                    id: pending.id,
+                    name: pending.name,
+                    desc: pending.desc,
+                    price: pending.price,
+                    qty,
+                    note
+                });
+            }
+
+            updateCartUI();
+            closeItemDetail();
+        }
+
+        function toggleCartSection(id) {
+            document.getElementById(`cart-form-${id}`).classList.toggle('open');
+        }
+
+        function toggleAddressInfo(show) {
+            const box = document.getElementById('address-info-box');
+            if (show) box.classList.remove('hidden');
+            else box.classList.add('hidden');
+        }
+
+        function saveCartSection(id) {
+            if (id === 'contact') {
+                const fn = document.getElementById('c-fname').value.trim();
+                const ln = document.getElementById('c-lname').value.trim();
+
+                if (fn && ln) {
+                    document.getElementById('contact-btn-text').innerText = `${fn} ${ln}`;
+                    toggleCartSection('contact');
+                } else {
+                    alert('Please enter first and last name.');
+                }
+            } else if (id === 'payment') {
+                const val = document.querySelector('input[name="payType"]:checked').value;
+                document.getElementById('payment-btn-text').innerText = val === 'Online' ? 'Bank Transfer' : 'Cash (COD)';
+                toggleCartSection('payment');
+            } else if (id === 'method') {
+                const val = document.querySelector('input[name="orderMethod"]:checked').value;
+                const address = document.getElementById('m-address').value.trim();
+
+                if (val === 'Delivery' && !address) {
+                    alert('Please add your address for delivery.');
+                    return;
+                }
+
+                document.getElementById('method-btn-text').innerText = val;
+                toggleCartSection('method');
+            }
+        }
+
+        function toggleBankInfo(show) {
+            const box = document.getElementById('bank-info-box');
+            if (show) box.classList.remove('hidden');
+            else box.classList.add('hidden');
+        }
+
+        function getCartTotal() {
+            return cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+        }
+
+        function getCartQty() {
+            return cart.reduce((sum, item) => sum + item.qty, 0);
+        }
+
+        function formatCurrency(value) {
+            return `Rs ${value.toLocaleString()}.00`;
+        }
+
+        function updateCartUI() {
+            const list = document.getElementById('cartList');
+            const total = document.getElementById('cartTotal');
+            const btnTotal = document.getElementById('cartBtnTotal');
+            const count = document.getElementById('cartCount');
+
+            count.innerText = getCartQty();
+
+            if (cart.length === 0) {
+                list.innerHTML = `
+                    <div class="empty-cart-box">
+                        <i class="fa-solid fa-bag-shopping text-3xl text-neutral-300 mb-3"></i>
+                        <p class="text-neutral-500 text-sm font-bold uppercase tracking-widest mb-1">Your bag is empty</p>
+                        <p class="text-neutral-400 text-xs m-0">Add some woodfire magic from the menu.</p>
+                    </div>
+                `;
+                total.innerText = "Rs 0.00";
+                btnTotal.innerText = "Rs 0.00";
+                return;
+            }
+
+            list.innerHTML = cart.map(item => {
+                const lineTotal = item.price * item.qty;
+
+                return `
+                    <div class="cart-item">
+                        <div class="cart-item-left">
+                            <div class="flex items-start justify-between gap-3">
+                                <div>
+                                    <h6 class="cart-item-title">${item.name}</h6>
+                                    <div class="text-[11px] text-neutral-400">${formatCurrency(item.price)} each</div>
+                                    ${item.note ? `<p class="cart-item-note">Note: ${escapeHtml(item.note)}</p>` : ''}
+                                </div>
+                            </div>
+
+                            <div class="cart-actions">
+                                <div class="mini-qty-box">
+                                    <button onclick="changeCartQty(${item.cartRowId}, -1)">-</button>
+                                    <span>${item.qty}</span>
+                                    <button onclick="changeCartQty(${item.cartRowId}, 1)">+</button>
+                                </div>
+                                <button class="remove-link" onclick="removeItem(${item.cartRowId})">Remove</button>
+                            </div>
+                        </div>
+
+                        <div class="cart-item-price">${formatCurrency(lineTotal)}</div>
+                    </div>
+                `;
+            }).join('');
+
+            const grandTotal = formatCurrency(getCartTotal());
+            total.innerText = grandTotal;
+            btnTotal.innerText = grandTotal;
+        }
+
+        function changeCartQty(cartRowId, delta) {
+            const item = cart.find(i => i.cartRowId === cartRowId);
+            if (!item) return;
+
+            item.qty += delta;
+
+            if (item.qty <= 0) {
+                cart = cart.filter(i => i.cartRowId !== cartRowId);
+            }
+
+            updateCartUI();
+        }
+
+        function removeItem(cartRowId) {
+            cart = cart.filter(i => i.cartRowId !== cartRowId);
+            updateCartUI();
+        }
+
+        function toggleCart() {
+            const sidebar = document.getElementById('cartSidebar');
+            sidebar.classList.toggle('active');
+            document.getElementById('cartOverlay').classList.toggle('hidden');
+            updateBodyScrollLock();
+        }
+
+        function toggleInfo() {
+            const drawer = document.getElementById('infoDrawer');
+            const overlay = document.getElementById('infoOverlay');
+            drawer.classList.toggle('active');
+            overlay.classList.toggle('hidden');
+            updateBodyScrollLock();
+        }
+
+        function placeOrder(event) {
+            if (cart.length === 0) {
+                alert('Your cart is empty.');
+                return;
+            }
+
+            const phone = document.getElementById('c-phone').value.trim();
+            const fname = document.getElementById('c-fname').value.trim();
+            const lname = document.getElementById('c-lname').value.trim();
+
+            if (!fname || !lname || !phone) {
+                alert("Please add contact details first!");
+                const contactForm = document.getElementById('cart-form-contact');
+                if (!contactForm.classList.contains('open')) toggleCartSection('contact');
+                return;
+            }
+
+            const orderBtn = event.currentTarget;
+            const originalBtnHTML = orderBtn.innerHTML;
+
+            orderBtn.disabled = true;
+            orderBtn.innerHTML = `
+                <div class="w-full text-center uppercase tracking-widest text-sm">Ordering...</div>
+            `;
+
+            setTimeout(() => {
+                alert("MAZAY AGAYE! Order confirmed. See you soon!");
+
+                cart = [];
+                updateCartUI();
+                toggleCart();
+                closeMenu();
+                smartNavigate('home');
+
+                orderBtn.disabled = false;
+                orderBtn.innerHTML = originalBtnHTML;
+            }, 1000);
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                if (!document.getElementById('itemDetailOverlay').classList.contains('hidden')) {
+                    closeItemDetail();
+                    return;
+                }
+                if (document.getElementById('infoDrawer').classList.contains('active')) {
+                    toggleInfo();
+                    return;
+                }
+                if (document.getElementById('cartSidebar').classList.contains('active')) {
+                    toggleCart();
+                    return;
+                }
+                if (document.getElementById('fullNavOverlay').classList.contains('active')) {
+                    toggleNav();
+                    return;
+                }
+                if (document.getElementById('menuModal').classList.contains('active')) {
+                    closeMenu();
+                    return;
+                }
+            }
+        });
+    </script>
+</body>
+</html>
